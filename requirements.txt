@@ -1,0 +1,9 @@
+yfinance
+asyncio
+langchain-mcp-adapters
+langchain-openai
+langgraph
+fastmcp
+streamlit
+openai>=1.0.0
+plotly>=5.0.0
