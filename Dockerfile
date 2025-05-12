@@ -3,10 +3,16 @@ FROM python:3.9-slim
 # Install system dependencies
 RUN apt-get update && apt-get install -y \
     libstdc++6 \
+    gcc \
+    python3-dev \
+    build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # Set working directory
 WORKDIR /app
+
+# Upgrade pip
+RUN pip install --no-cache-dir --upgrade pip
 
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
