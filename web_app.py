@@ -21,18 +21,6 @@ load_dotenv()
 # Set page config first
 st.set_page_config(page_title="Financial Dashboard", layout="wide")
 
-# Debug section - Only show in development
-env_value = os.getenv('ENVIRONMENT', '').lower() or os.getenv('environment', '').lower()
-if env_value != 'production':
-    st.sidebar.write("Debug Information:")
-    api_key = os.getenv("OPENAI_API_KEY")
-    if api_key:
-        st.sidebar.write("✅ OPENAI_API_KEY is set")
-        st.sidebar.write(f"Key length: {len(api_key)}")
-        st.sidebar.write(f"Key starts with: {api_key[:8]}...")
-    else:
-        st.sidebar.write("❌ OPENAI_API_KEY is not set")
-
 # Get API key
 api_key = os.getenv("OPENAI_API_KEY")
 if not api_key:
