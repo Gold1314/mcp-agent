@@ -17,8 +17,9 @@ RUN pip install --no-cache-dir --upgrade pip wheel setuptools
 # Copy requirements first to leverage Docker cache
 COPY requirements.txt .
 
-# Install Python dependencies with pre-built wheels
-RUN pip install --no-cache-dir --only-binary :all: -r requirements.txt
+# Install Python dependencies in two steps
+RUN pip install --no-cache-dir numpy==1.26.4 pandas==2.0.0 && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy the rest of the application
 COPY . .
