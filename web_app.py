@@ -18,6 +18,9 @@ from mcp.client.stdio import stdio_client
 # Load environment variables
 load_dotenv()
 
+# Set page config first
+st.set_page_config(page_title="Financial Dashboard", layout="wide")
+
 # Debug section - Only show in development
 env_value = os.getenv('ENVIRONMENT', '').lower() or os.getenv('environment', '').lower()
 if env_value != 'production':
@@ -78,7 +81,6 @@ async def get_financials(symbol):
             cashflow = parse_if_str(cashflow)
             return annual, balance, cashflow
 
-st.set_page_config(page_title="Financial Dashboard", layout="wide")
 st.title("Financial Dashboard")
 symbol = st.text_input("Stock Symbol (e.g., AAPL, MSFT)", "AAPL").upper()
 
