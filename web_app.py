@@ -18,8 +18,12 @@ from mcp.client.stdio import stdio_client
 # Load environment variables
 load_dotenv()
 
-# Set page config first
-st.set_page_config(page_title="Financial Dashboard", layout="wide")
+# Set page config
+st.set_page_config(
+    page_title="Financial Dashboard",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
 # Get API key
 api_key = os.getenv("OPENAI_API_KEY")
