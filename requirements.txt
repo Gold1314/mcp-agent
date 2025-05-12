@@ -9,4 +9,5 @@ openai==1.0.0
 plotly==5.0.0
 python-dotenv==1.0.0
 pandas==2.0.0
-numpy>=1.24.3
+numpy==1.26.4
+tornado==6.4
