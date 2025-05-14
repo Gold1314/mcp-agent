@@ -8,12 +8,18 @@ import json
 import yfinance as yf
 import plotly.graph_objects as go
 import re
+import logging
 
 from langchain_mcp_adapters.tools import load_mcp_tools
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
-from mcp import ClientSession, TCPServerParameters
+from mcp import ClientSession
 from mcp.client.tcp import tcp_client
+from mcp.server.tcp import TCPServerParameters
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 # Load environment variables
 load_dotenv()
@@ -34,22 +40,47 @@ if not api_key:
 # Initialize OpenAI model
 model = ChatOpenAI(model="gpt-4", api_key=api_key)
 
-# Server parameters - using TCP
+# Server parameters
 server_params = TCPServerParameters(
-    host="0.0.0.0",  # Use 0.0.0.0 when running in Docker
-    port=5000,      # Match this port with tcp_mcp_server.py
+    host="localhost",
+    port=int(os.environ.get('PORT', '5000'))
 )
 
 async def get_dashboard_data(symbol):
-    async with tcp_client(server_params) as (read, write):
-        async with ClientSession(read, write) as session:
-            await session.initialize()
-            tools_list = await load_mcp_tools(session)
-            tools = {tool.name: tool for tool in tools_list}
-            stock_info = await tools["fetch_stock_info"].ainvoke({"symbol": symbol})
-            price_history = await tools["fetch_price_history"].ainvoke({"symbol": symbol, "period": "1y", "interval": "1mo"})
-            quarterly = await tools["fetch_quarterly_financials"].ainvoke({"symbol": symbol})
-            return stock_info, price_history, quarterly
+    try:
+        logger.info(f"Connecting to MCP server for {symbol}")
+        async with tcp_client(server_params) as (read, write):
+            async with ClientSession(read, write) as session:
+                await session.initialize()
+                tools_list = await load_mcp_tools(session)
+                tools = {tool.name: tool for tool in tools_list}
+                
+                # Fetch data with error handling
+                try:
+                    stock_info = await tools["fetch_stock_info"].ainvoke({"symbol": symbol})
+                    logger.info(f"Successfully fetched stock info for {symbol}")
+                except Exception as e:
+                    logger.error(f"Error fetching stock info: {e}")
+                    stock_info = {}
+                
+                try:
+                    price_history = await tools["fetch_price_history"].ainvoke({"symbol": symbol, "period": "1y", "interval": "1mo"})
+                    logger.info(f"Successfully fetched price history for {symbol}")
+                except Exception as e:
+                    logger.error(f"Error fetching price history: {e}")
+                    price_history = {}
+                
+                try:
+                    quarterly = await tools["fetch_quarterly_financials"].ainvoke({"symbol": symbol})
+                    logger.info(f"Successfully fetched quarterly financials for {symbol}")
+                except Exception as e:
+                    logger.error(f"Error fetching quarterly financials: {e}")
+                    quarterly = {}
+                
+                return stock_info, price_history, quarterly
+    except Exception as e:
+        logger.error(f"Error in get_dashboard_data: {e}")
+        raise
 
 async def get_financials(symbol):
     async with tcp_client(server_params) as (read, write):
