@@ -216,7 +216,7 @@ if __name__ == "__main__":
             transport="sse",
             host="0.0.0.0",
             port=port,
-            path="/mcp"  # Use path instead of endpoint
+            path="/"  # Serve at root path
         )
     except Exception as e:
         logger.error(f"Error running MCP server: {e}")
