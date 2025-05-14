@@ -211,8 +211,8 @@ if __name__ == "__main__":
         port = int(os.getenv("PORT", "8080"))
         logger.info(f"Starting MCP server on port {port}")
         
-        # Run the FastMCP server
-        mcp.run(transport="sse", port=port)
+        # Run the FastMCP server with host configuration
+        mcp.run(transport="sse", port=port, host="0.0.0.0")
     except Exception as e:
         logger.error(f"Error running MCP server: {e}")
         sys.exit(1)
