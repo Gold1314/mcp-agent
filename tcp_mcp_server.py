@@ -17,7 +17,12 @@ logger = logging.getLogger(__name__)
 # Load environment variables
 load_dotenv()
 
-mcp = FastMCP("stocks")
+# Initialize FastMCP with the correct configuration
+mcp = FastMCP(
+    name="stocks",
+    host="0.0.0.0",
+    port=int(os.environ.get('PORT', '5000'))
+)
 
 @mcp.tool()
 def fetch_stock_info(symbol: str) -> dict:
@@ -200,10 +205,8 @@ def get_recommendation(symbol: str) -> dict:
 if __name__ == "__main__":
     try:
         logger.info("Starting MCP server...")
-        # Get port from environment variable or use default
-        port = int(os.environ.get('PORT', '5000'))
-        logger.info(f"Using port {port}")
-        mcp.run(transport="tcp", host="0.0.0.0", port=port)
+        logger.info(f"Using port {mcp.port}")
+        mcp.run()
     except Exception as e:
         logger.error(f"Error running MCP server: {e}")
         sys.exit(1)
