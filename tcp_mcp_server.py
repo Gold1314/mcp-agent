@@ -1,12 +1,11 @@
 import yfinance as yf
 from fastmcp import FastMCP
-from fastmcp.server import Server
+import mcp
 import os
 import openai
 from dotenv import load_dotenv
 import logging
 import sys
-import asyncio
 
 # Set up logging
 logging.basicConfig(
@@ -207,9 +206,13 @@ def get_recommendation(symbol: str) -> dict:
 if __name__ == "__main__":
     try:
         logger.info("Starting MCP server...")
-        # Create and run the server directly
-        server = Server(mcp)
-        asyncio.run(server.serve(host="0.0.0.0", port=port))
+        # Use mcp.run with TCP configuration
+        mcp.run(
+            transport="tcp",
+            host="0.0.0.0",
+            port=port,
+            server_name="stocks"
+        )
     except Exception as e:
         logger.error(f"Error running MCP server: {e}")
         sys.exit(1)
