@@ -205,7 +205,7 @@ def get_recommendation(symbol: str) -> dict:
 if __name__ == "__main__":
     try:
         logger.info("Starting MCP server...")
-        mcp.run(host="0.0.0.0", port=port)
+        mcp.run(transport="tcp", host="0.0.0.0", port=port)
     except Exception as e:
         logger.error(f"Error running MCP server: {e}")
         sys.exit(1)
