@@ -213,7 +213,7 @@ if __name__ == "__main__":
         
         # Create and run the server
         server = Server(mcp)
-        asyncio.run(server.run(host="0.0.0.0", port=port))
+        asyncio.run(server.run(port=port))
     except Exception as e:
         logger.error(f"Error running MCP server: {e}")
         sys.exit(1)
