@@ -17,20 +17,12 @@ RUN pip install --no-cache-dir --upgrade pip wheel setuptools
 # Copy requirements file first
 COPY requirements.txt .
 
-# Install packages one by one with error handling
-RUN pip install --no-cache-dir numpy==1.26.4 || echo "Failed to install numpy, continuing..." && \
-    pip install --no-cache-dir pandas==2.0.0 || echo "Failed to install pandas, continuing..." && \
-    pip install --no-cache-dir streamlit==1.32.0 || echo "Failed to install streamlit, continuing..." && \
-    pip install --no-cache-dir yfinance==0.2.36 || echo "Failed to install yfinance, continuing..." && \
-    pip install --no-cache-dir plotly==5.0.0 || echo "Failed to install plotly, continuing..." && \
-    pip install --no-cache-dir python-dotenv==1.0.0 || echo "Failed to install python-dotenv, continuing..." && \
-    pip install --no-cache-dir openai==1.0.0 || echo "Failed to install openai, continuing..." && \
-    pip install --no-cache-dir tornado==6.4 || echo "Failed to install tornado, continuing..." && \
-    pip install --no-cache-dir asyncio==3.4.3 || echo "Failed to install asyncio, continuing..." && \
-    pip install --no-cache-dir langchain-mcp-adapters>=0.0.1 || echo "Failed to install langchain-mcp-adapters, continuing..." && \
-    pip install --no-cache-dir langchain-openai>=0.0.5 || echo "Failed to install langchain-openai, continuing..." && \
-    pip install --no-cache-dir langgraph>=0.0.20 || echo "Failed to install langgraph, continuing..." && \
-    pip install --no-cache-dir fastmcp>=0.0.1 || echo "Failed to install fastmcp, continuing..."
+# Install packages in optimized batches
+RUN pip install --no-cache-dir numpy==1.26.4 pandas==2.0.0 && \
+    pip install --no-cache-dir streamlit==1.32.0 yfinance==0.2.36 plotly==5.0.0 && \
+    pip install --no-cache-dir python-dotenv==1.0.0 openai==1.0.0 tornado==6.4 && \
+    pip install --no-cache-dir asyncio==3.4.3 langchain-mcp-adapters>=0.0.1 langchain-openai>=0.0.5 && \
+    pip install --no-cache-dir langgraph>=0.0.20 fastmcp>=0.0.1
 
 # Copy application files
 COPY . .
