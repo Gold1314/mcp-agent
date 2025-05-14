@@ -9,13 +9,14 @@ import yfinance as yf
 import plotly.graph_objects as go
 import re
 import logging
+import subprocess
 
 from langchain_mcp_adapters.tools import load_mcp_tools
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from mcp import ClientSession
-from mcp.client.tcp import tcp_client
-from mcp.server.tcp import TCPServerParameters
+from mcp.client.stdio import stdio_client
+from mcp.server.stdio import StdioServerParameters
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -41,15 +42,15 @@ if not api_key:
 model = ChatOpenAI(model="gpt-4", api_key=api_key)
 
 # Server parameters
-server_params = TCPServerParameters(
-    host="localhost",
-    port=int(os.environ.get('PORT', '5000'))
+server_params = StdioServerParameters(
+    command="python",
+    args=["tcp_mcp_server.py"]
 )
 
 async def get_dashboard_data(symbol):
     try:
         logger.info(f"Connecting to MCP server for {symbol}")
-        async with tcp_client(server_params) as (read, write):
+        async with stdio_client(server_params) as (read, write):
             async with ClientSession(read, write) as session:
                 await session.initialize()
                 tools_list = await load_mcp_tools(session)
@@ -83,7 +84,7 @@ async def get_dashboard_data(symbol):
         raise
 
 async def get_financials(symbol):
-    async with tcp_client(server_params) as (read, write):
+    async with stdio_client(server_params) as (read, write):
         async with ClientSession(read, write) as session:
             await session.initialize()
             tools_list = await load_mcp_tools(session)
@@ -135,7 +136,7 @@ if st.button("Analyze"):
             # --- MCP-based Recommendation ---
             # Call the MCP tool for recommendation
             async def fetch_recommendation(symbol):
-                async with tcp_client(server_params) as (read, write):
+                async with stdio_client(server_params) as (read, write):
                     async with ClientSession(read, write) as session:
                         await session.initialize()
                         tools_list = await load_mcp_tools(session)
