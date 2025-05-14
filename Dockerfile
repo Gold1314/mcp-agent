@@ -27,15 +27,8 @@ RUN pip install --no-cache-dir numpy==1.26.4 pandas==2.0.0 && \
 # Copy application files
 COPY . .
 
-# Create a script to start both the MCP server and Streamlit app
-RUN echo '#!/bin/bash\n\
-# Start MCP server in the background\n\
-python tcp_mcp_server.py &\n\
-# Wait for server to start\n\
-sleep 5\n\
-# Start Streamlit app\n\
-streamlit run tcp_web_app.py\n\
-' > start.sh && chmod +x start.sh
+# Make start script executable
+RUN chmod +x start.sh
 
 # Expose the port (will be overridden by Railway)
 EXPOSE ${PORT:-8501}
