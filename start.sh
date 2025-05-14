@@ -16,6 +16,8 @@ fi
 # Export Streamlit-specific environment variables
 export STREAMLIT_SERVER_PORT=$PORT_INT
 export STREAMLIT_SERVER_ADDRESS="0.0.0.0"
+export STREAMLIT_SERVER_HEADLESS=true
+export STREAMLIT_BROWSER_GATHER_USAGE_STATS=false
 
 # Export MCP server environment variables
 export MCP_SERVER_HOST="localhost"
@@ -37,4 +39,4 @@ sleep 5
 
 # Start Streamlit app
 echo "Starting Streamlit..."
-exec streamlit run tcp_web_app.py
+streamlit run tcp_web_app.py --server.port $PORT_INT --server.address 0.0.0.0

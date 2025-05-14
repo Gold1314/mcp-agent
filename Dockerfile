@@ -37,8 +37,8 @@ sleep 5\n\
 streamlit run tcp_web_app.py\n\
 ' > start.sh && chmod +x start.sh
 
-# Expose the port
-EXPOSE 8501
+# Expose the port (will be overridden by Railway)
+EXPOSE ${PORT:-8501}
 
 # Run the start script
 CMD ["./start.sh"]
