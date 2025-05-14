@@ -35,8 +35,14 @@ RUN pip install --no-cache-dir numpy==1.26.4 && \
 # Copy the rest of the application
 COPY . .
 
-# Expose the port
-EXPOSE 8501
+# Create a shell script to correctly handle the port
+RUN echo '#!/bin/bash\n\
+PORT_INT=${PORT:-8501}\n\
+export STREAMLIT_SERVER_PORT=$PORT_INT\n\
+export STREAMLIT_SERVER_ADDRESS="0.0.0.0"\n\
+python run.py\n' > /app/start.sh
+
+RUN chmod +x /app/start.sh
 
 # Command to run the application
-CMD ["python", "run.py"] 
+CMD ["/app/start.sh"]
