@@ -15,8 +15,7 @@ from langchain_mcp_adapters.tools import load_mcp_tools
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from mcp import ClientSession
-from mcp.client.stdio import stdio_client
-from mcp.server.stdio import StdioServerParameters
+from mcp.client import Client
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -42,68 +41,66 @@ if not api_key:
 model = ChatOpenAI(model="gpt-4", api_key=api_key)
 
 # Server parameters
-server_params = StdioServerParameters(
-    command="python",
-    args=["tcp_mcp_server.py"]
-)
+MCP_SERVER_HOST = os.getenv("MCP_SERVER_HOST", "localhost")
+MCP_SERVER_PORT = int(os.getenv("MCP_SERVER_PORT", "8080"))
 
 async def get_dashboard_data(symbol):
     try:
         logger.info(f"Connecting to MCP server for {symbol}")
-        async with stdio_client(server_params) as (read, write):
-            async with ClientSession(read, write) as session:
-                await session.initialize()
-                tools_list = await load_mcp_tools(session)
-                tools = {tool.name: tool for tool in tools_list}
-                
-                # Fetch data with error handling
-                try:
-                    stock_info = await tools["fetch_stock_info"].ainvoke({"symbol": symbol})
-                    logger.info(f"Successfully fetched stock info for {symbol}")
-                except Exception as e:
-                    logger.error(f"Error fetching stock info: {e}")
-                    stock_info = {}
-                
-                try:
-                    price_history = await tools["fetch_price_history"].ainvoke({"symbol": symbol, "period": "1y", "interval": "1mo"})
-                    logger.info(f"Successfully fetched price history for {symbol}")
-                except Exception as e:
-                    logger.error(f"Error fetching price history: {e}")
-                    price_history = {}
-                
-                try:
-                    quarterly = await tools["fetch_quarterly_financials"].ainvoke({"symbol": symbol})
-                    logger.info(f"Successfully fetched quarterly financials for {symbol}")
-                except Exception as e:
-                    logger.error(f"Error fetching quarterly financials: {e}")
-                    quarterly = {}
-                
-                return stock_info, price_history, quarterly
+        client = Client(f"ws://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}")
+        async with client as session:
+            await session.initialize()
+            tools_list = await load_mcp_tools(session)
+            tools = {tool.name: tool for tool in tools_list}
+            
+            # Fetch data with error handling
+            try:
+                stock_info = await tools["fetch_stock_info"].ainvoke({"symbol": symbol})
+                logger.info(f"Successfully fetched stock info for {symbol}")
+            except Exception as e:
+                logger.error(f"Error fetching stock info: {e}")
+                stock_info = {}
+            
+            try:
+                price_history = await tools["fetch_price_history"].ainvoke({"symbol": symbol, "period": "1y", "interval": "1mo"})
+                logger.info(f"Successfully fetched price history for {symbol}")
+            except Exception as e:
+                logger.error(f"Error fetching price history: {e}")
+                price_history = {}
+            
+            try:
+                quarterly = await tools["fetch_quarterly_financials"].ainvoke({"symbol": symbol})
+                logger.info(f"Successfully fetched quarterly financials for {symbol}")
+            except Exception as e:
+                logger.error(f"Error fetching quarterly financials: {e}")
+                quarterly = {}
+            
+            return stock_info, price_history, quarterly
     except Exception as e:
         logger.error(f"Error in get_dashboard_data: {e}")
         raise
 
 async def get_financials(symbol):
-    async with stdio_client(server_params) as (read, write):
-        async with ClientSession(read, write) as session:
-            await session.initialize()
-            tools_list = await load_mcp_tools(session)
-            tools = {tool.name: tool for tool in tools_list}
-            annual = await tools["fetch_annual_financials"].ainvoke({"symbol": symbol})
-            balance = await tools["fetch_balance_sheet"].ainvoke({"symbol": symbol})
-            cashflow = await tools["fetch_cash_flow"].ainvoke({"symbol": symbol})
-            # Parse if needed
-            def parse_if_str(d):
-                if isinstance(d, str):
-                    try:
-                        d = json.loads(d)
-                    except Exception:
-                        d = {}
-                return d
-            annual = parse_if_str(annual)
-            balance = parse_if_str(balance)
-            cashflow = parse_if_str(cashflow)
-            return annual, balance, cashflow
+    client = Client(f"ws://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}")
+    async with client as session:
+        await session.initialize()
+        tools_list = await load_mcp_tools(session)
+        tools = {tool.name: tool for tool in tools_list}
+        annual = await tools["fetch_annual_financials"].ainvoke({"symbol": symbol})
+        balance = await tools["fetch_balance_sheet"].ainvoke({"symbol": symbol})
+        cashflow = await tools["fetch_cash_flow"].ainvoke({"symbol": symbol})
+        # Parse if needed
+        def parse_if_str(d):
+            if isinstance(d, str):
+                try:
+                    d = json.loads(d)
+                except Exception:
+                    d = {}
+            return d
+        annual = parse_if_str(annual)
+        balance = parse_if_str(balance)
+        cashflow = parse_if_str(cashflow)
+        return annual, balance, cashflow
 
 st.title("Financial Dashboard")
 symbol = st.text_input("Stock Symbol (e.g., AAPL, MSFT)", "AAPL").upper()
@@ -136,12 +133,12 @@ if st.button("Analyze"):
             # --- MCP-based Recommendation ---
             # Call the MCP tool for recommendation
             async def fetch_recommendation(symbol):
-                async with stdio_client(server_params) as (read, write):
-                    async with ClientSession(read, write) as session:
-                        await session.initialize()
-                        tools_list = await load_mcp_tools(session)
-                        tools = {tool.name: tool for tool in tools_list}
-                        return await tools["get_recommendation"].ainvoke({"symbol": symbol})
+                client = Client(f"ws://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}")
+                async with client as session:
+                    await session.initialize()
+                    tools_list = await load_mcp_tools(session)
+                    tools = {tool.name: tool for tool in tools_list}
+                    return await tools["get_recommendation"].ainvoke({"symbol": symbol})
             rec_result = asyncio.run(fetch_recommendation(symbol))
             if isinstance(rec_result, str):
                 try:

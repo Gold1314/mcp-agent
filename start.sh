@@ -17,8 +17,14 @@ fi
 export STREAMLIT_SERVER_PORT=$PORT_INT
 export STREAMLIT_SERVER_ADDRESS="0.0.0.0"
 
+# Export MCP server environment variables
+export MCP_SERVER_HOST="localhost"
+export MCP_SERVER_PORT="8080"
+
 echo "STREAMLIT_SERVER_PORT: $STREAMLIT_SERVER_PORT"
 echo "STREAMLIT_SERVER_ADDRESS: $STREAMLIT_SERVER_ADDRESS"
+echo "MCP_SERVER_HOST: $MCP_SERVER_HOST"
+echo "MCP_SERVER_PORT: $MCP_SERVER_PORT"
 
 # Start MCP server in the background
 echo "Starting MCP server..."

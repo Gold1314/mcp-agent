@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 import logging
 import sys
 import asyncio
-from mcp.server.stdio import StdioServer
+from mcp.server import Server
 
 # Set up logging
 logging.basicConfig(
@@ -21,8 +21,8 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Get port from environment variable or use default
-port = int(os.environ.get('PORT', '5000'))
-logger.info(f"Using port {port}")
+port = int(os.getenv("PORT", "8080"))
+logger.info(f"Starting MCP server on port {port}")
 
 # Initialize FastMCP
 mcp = FastMCP("stocks")
@@ -207,10 +207,13 @@ def get_recommendation(symbol: str) -> dict:
 
 if __name__ == "__main__":
     try:
-        logger.info("Starting MCP server...")
-        # Create and run server with stdio transport
-        server = StdioServer(mcp)
-        asyncio.run(server.serve())
+        # Get port from environment variable or use default
+        port = int(os.getenv("PORT", "8080"))
+        logger.info(f"Starting MCP server on port {port}")
+        
+        # Create and run the server
+        server = Server(mcp)
+        asyncio.run(server.run(host="0.0.0.0", port=port))
     except Exception as e:
         logger.error(f"Error running MCP server: {e}")
         sys.exit(1)
