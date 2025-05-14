@@ -43,11 +43,12 @@ model = ChatOpenAI(model="gpt-4", api_key=api_key)
 # Server parameters
 MCP_SERVER_HOST = os.getenv("MCP_SERVER_HOST", "localhost")
 MCP_SERVER_PORT = int(os.getenv("MCP_SERVER_PORT", "8080"))
+MCP_SERVER_URL = f"http://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}/mcp"  # Add /mcp endpoint
 
 async def get_dashboard_data(symbol):
     try:
         logger.info(f"Connecting to MCP server for {symbol}")
-        async with sse_client(f"http://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}") as session:
+        async with sse_client(MCP_SERVER_URL) as session:
             await session.initialize()
             tools_list = await load_mcp_tools(session)
             tools = {tool.name: tool for tool in tools_list}
@@ -80,7 +81,7 @@ async def get_dashboard_data(symbol):
         raise
 
 async def get_financials(symbol):
-    async with sse_client(f"http://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}") as session:
+    async with sse_client(MCP_SERVER_URL) as session:
         await session.initialize()
         tools_list = await load_mcp_tools(session)
         tools = {tool.name: tool for tool in tools_list}
@@ -131,7 +132,7 @@ if st.button("Analyze"):
             # --- MCP-based Recommendation ---
             # Call the MCP tool for recommendation
             async def fetch_recommendation(symbol):
-                async with sse_client(f"http://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}") as session:
+                async with sse_client(MCP_SERVER_URL) as session:
                     await session.initialize()
                     tools_list = await load_mcp_tools(session)
                     tools = {tool.name: tool for tool in tools_list}
