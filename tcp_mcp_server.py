@@ -211,9 +211,8 @@ if __name__ == "__main__":
         port = int(os.getenv("PORT", "8080"))
         logger.info(f"Starting MCP server on port {port}")
         
-        # Create and run the server
-        server = Server(mcp)
-        asyncio.run(server.run(port=port))
+        # Run the FastMCP server
+        mcp.run(transport="sse", port=port)
     except Exception as e:
         logger.error(f"Error running MCP server: {e}")
         sys.exit(1)

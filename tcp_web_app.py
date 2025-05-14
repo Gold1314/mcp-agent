@@ -15,7 +15,7 @@ from langchain_mcp_adapters.tools import load_mcp_tools
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import create_react_agent
 from mcp import ClientSession
-from mcp.client import Client
+from mcp.client.sse import sse_client
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -47,8 +47,7 @@ MCP_SERVER_PORT = int(os.getenv("MCP_SERVER_PORT", "8080"))
 async def get_dashboard_data(symbol):
     try:
         logger.info(f"Connecting to MCP server for {symbol}")
-        client = Client(f"ws://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}")
-        async with client as session:
+        async with sse_client(f"http://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}") as session:
             await session.initialize()
             tools_list = await load_mcp_tools(session)
             tools = {tool.name: tool for tool in tools_list}
@@ -81,8 +80,7 @@ async def get_dashboard_data(symbol):
         raise
 
 async def get_financials(symbol):
-    client = Client(f"ws://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}")
-    async with client as session:
+    async with sse_client(f"http://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}") as session:
         await session.initialize()
         tools_list = await load_mcp_tools(session)
         tools = {tool.name: tool for tool in tools_list}
@@ -133,8 +131,7 @@ if st.button("Analyze"):
             # --- MCP-based Recommendation ---
             # Call the MCP tool for recommendation
             async def fetch_recommendation(symbol):
-                client = Client(f"ws://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}")
-                async with client as session:
+                async with sse_client(f"http://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}") as session:
                     await session.initialize()
                     tools_list = await load_mcp_tools(session)
                     tools = {tool.name: tool for tool in tools_list}
