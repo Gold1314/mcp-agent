@@ -363,8 +363,15 @@ if st.button("Analyze"):
 
             with col_news:
                 def fetch_yf_news(symbol):
-                    stock = yf.Ticker(symbol)
-                    return stock.news[:15] if hasattr(stock, 'news') else []
+                    try:
+                        stock = yf.Ticker(symbol)
+                        news = getattr(stock, 'news', None)
+                        if news and isinstance(news, list):
+                            return news[:15]
+                        return []
+                    except Exception as e:
+                        logger.error(f"Error fetching news for {symbol}: {e}")
+                        return []
 
                 news_articles = fetch_yf_news(symbol)
 
