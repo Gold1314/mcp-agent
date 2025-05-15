@@ -42,7 +42,7 @@ model = ChatOpenAI(model="gpt-4", api_key=api_key)
 
 # Server parameters
 MCP_SERVER_HOST = os.getenv("MCP_SERVER_HOST", "localhost")
-MCP_SERVER_PORT = int(os.getenv("MCP_SERVER_PORT", "8080"))
+MCP_SERVER_PORT = int(os.getenv("MCP_SERVER_PORT", "8081"))
 MCP_SERVER_URL = f"http://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}"  # Use root path
 
 async def get_dashboard_data(symbol):
