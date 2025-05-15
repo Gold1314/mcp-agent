@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 # Get port from environment variable or use default
-port = int(os.getenv("PORT", "8080"))
+port = int(os.getenv("MCP_SERVER_PORT", "8081"))
 logger.info(f"Starting MCP server on port {port}")
 
 # Initialize FastMCP
@@ -208,7 +208,7 @@ def get_recommendation(symbol: str) -> dict:
 if __name__ == "__main__":
     try:
         # Get port from environment variable or use default
-        port = int(os.getenv("PORT", "8080"))
+        port = int(os.getenv("MCP_SERVER_PORT", "8081"))
         logger.info(f"Starting MCP server on port {port}")
         
         # Run the FastMCP server with host configuration
