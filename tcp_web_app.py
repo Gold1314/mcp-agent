@@ -120,6 +120,10 @@ if st.button("Analyze"):
         if not isinstance(stock_info, dict):
             st.error(f"Error: Could not fetch stock info. Received: {stock_info}")
         else:
+            if not stock_info or 'currentPrice' not in stock_info:
+                st.warning("Stock data is currently unavailable. This is likely due to Yahoo Finance rate limiting. Please try again later or use a different data source.")
+                st.stop()
+
             def human_format(num):
                 if num is None or num == 'N/A':
                     return 'N/A'
