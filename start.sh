@@ -22,7 +22,7 @@ export STREAMLIT_SERVER_ENABLE_CORS=true
 export STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
 
 # Export MCP server environment variables
-export MCP_SERVER_HOST="localhost"
+export MCP_SERVER_HOST="0.0.0.0"
 export MCP_SERVER_PORT="8080"
 
 echo "STREAMLIT_SERVER_PORT: $STREAMLIT_SERVER_PORT"
